@@ -1,6 +1,7 @@
 import * as express from 'express'
 import * as fs from 'fs';
 import * as cors from 'cors'
+import * as path from 'path'
 
 import { Stock, Transaction, ResultingStock } from './interfaces';
 
@@ -33,6 +34,9 @@ const applyTransaction = async (sku: string, stock: number): Promise<{ sku: stri
             qty += transaction.qty
         }
     })
+    if(qty < 0) {
+        throw new Error('Orders cannot be placed for qyantity greater than the stocks available')
+    }
     const resultStock: ResultingStock = {
       sku,
       qty  
@@ -72,5 +76,9 @@ app.get("/sku", async (req, res) => {
         res.status(500).json({status:'failure', message: `Error: ${errMessage}`})
     }
   });
+
+  app.get('/form', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+  })
 
 export default app;
